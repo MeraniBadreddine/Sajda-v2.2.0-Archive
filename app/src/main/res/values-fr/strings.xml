@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sajda</string>
+    <string name="location_refining">Localisation…</string>
+    <string name="location_ready">Position prête</string>
+    <string name="calibrate_guidance">Tracez un huit avec le téléphone, loin du métal</string>
+    <string name="heading_approximate">Direction approximative — tenez stable</string>
+    <string name="locating">Localisation…</string>
+    <string name="location_timeout">Toujours en recherche. Sortez à découvert.</string>
+    <string name="location_unavailable">Position indisponible</string>
+    <string name="location_permission_denied">L’accès à la position est nécessaire.</string>
+    <string name="location_off_title">Localisation désactivée</string>
+    <string name="location_off_message">Activez la localisation dans Réglages. Votre position reste sur l’appareil.</string>
+    <string name="permission_rationale">La position sert uniquement à calculer la Qibla.</string>
+    <string name="open_settings">Réglages</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="conf_high">Capteurs stables</string>
+    <string name="conf_medium">Certitude modérée</string>
+    <string name="conf_low">Interférence possible</string>
+    <string name="conf_calibrate">Calibration requise</string>
+    <string name="aligned">Aligné sur la Qibla</string>
+    <string name="turn_degrees">Tournez de %1$d° %2$s</string>
+    <string name="left">à gauche</string>
+    <string name="right">à droite</string>
+    <string name="about_title">À propos</string>
+    <string name="about_body">Sajda indique la direction de la Kaaba depuis votre position, par rapport au nord vrai. L’angle est calculé ; la confiance reflète les capteurs. La position reste sur l’appareil.</string>
+    <string name="calibrate_banner">Forme un 8 · loin du métal</string>
+    <string name="location_cached">Dernière position connue</string>
+    <string name="location_off_pill">Localisation désactivée · Toucher</string>
+    <string name="location_permission_pill">Autoriser la position · Toucher</string>
+    <string name="sensor_unavailable">Les capteurs de la boussole ne sont pas disponibles sur cet appareil.</string>
+    <string name="compass_accessibility">Boussole indiquant la direction de la Kaaba. Azimut calculé : %1$s.</string>
+    <string name="tagline">La direction, avec intention.</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="direction_right">à droite</string>
+    <string name="direction_left">à gauche</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">سجدة</string>
+    <string name="location_refining">جاري تحديد الموقع…</string>
+    <string name="location_ready">الموقع جاهز</string>
+    <string name="calibrate_guidance">حرّك الهاتف على شكل 8 بعيداً عن المعدن</string>
+    <string name="heading_approximate">الاتجاه تقريبي — ثبّت الهاتف</string>
+    <string name="locating">جاري تحديد موقعك…</string>
+    <string name="location_timeout">ما زال البحث جارياً. اخرج إلى مكان مفتوح.</string>
+    <string name="location_unavailable">الموقع غير متاح</string>
+    <string name="location_permission_denied">يلزم السماح بالموقع لتحديد القبلة.</string>
+    <string name="location_off_title">الموقع مطفأ</string>
+    <string name="location_off_message">فعّل الموقع من الإعدادات. موقعك يبقى على جهازك.</string>
+    <string name="permission_rationale">الموقع يُستخدم فقط لحساب القبلة ولا يُرسل لأي خادم.</string>
+    <string name="open_settings">الإعدادات</string>
+    <string name="ok">حسناً</string>
+    <string name="cancel">إلغاء</string>
+    <string name="conf_high">أجهزة الاستشعار مستقرة</string>
+    <string name="conf_medium">يقين متوسط</string>
+    <string name="conf_low">تداخل مغناطيسي محتمل</string>
+    <string name="conf_calibrate">يلزم المعايرة</string>
+    <string name="aligned">محاذٍ للقبلة</string>
+    <string name="turn_degrees">استدر %1$d° %2$s</string>
+    <string name="left">يساراً</string>
+    <string name="right">يميناً</string>
+    <string name="about_title">عن سجدة</string>
+    <string name="about_body">تعرض سجدة اتجاه الكعبة من موقعك مقارنةً بالشمال الحقيقي. الزاوية محسوبة، والثقة تعكس الحساسات فقط. الموقع يبقى على جهازك.</string>
+    <string name="calibrate_banner">شكل 8 · بعيداً عن المعدن</string>
+    <string name="location_cached">آخر موقع معروف</string>
+    <string name="location_off_pill">الموقع مطفأ · اضغط للتفعيل</string>
+    <string name="location_permission_pill">السماح بالموقع · اضغط للمتابعة</string>
+    <string name="sensor_unavailable">حساسات البوصلة غير متوفرة في هذا الجهاز.</string>
+    <string name="compass_accessibility">البوصلة تعرض اتجاه الكعبة. زاوية القبلة المحسوبة: %1$s.</string>
+    <string name="tagline">اتجاه، بقصد.</string>
+    <string name="about_version">الإصدار %1$s</string>
+    <string name="direction_right">يمين</string>
+    <string name="direction_left">يسار</string>
+</resources>

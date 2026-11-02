@@ -1,6 +1,7 @@
 package com.sajda.session
 
 import com.sajda.compass.Confidence
+import com.sajda.compass.CompassHint
 import com.sajda.data.LocationCache
 import com.sajda.data.UserLocation
 import com.sajda.geo.GeoPoint
@@ -52,7 +53,7 @@ class SessionRepository(
         trueHeading: TrueHeadingDeg,
         magnetic: MagneticHeadingDeg,
         confidence: Confidence,
-        interferenceHint: String?
+        interferenceHint: CompassHint?
     ): QiblaSession? {
         val s = session ?: return null
         session = s.copy(

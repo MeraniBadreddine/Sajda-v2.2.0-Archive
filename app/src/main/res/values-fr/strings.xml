@@ -81,4 +81,10 @@
     <string name="permission_pre_body">Sajda utilise votre position uniquement sur cet appareil pour calculer la direction de la Kaaba. Rien n’est envoyé.</string>
     <string name="permission_pre_continue">Continuer</string>
     <string name="permission_pre_not_now">Pas maintenant</string>
+    <string name="hint_declination_missing">Correction du nord vrai indisponible — direction approximative</string>
+    <string name="hint_magnetic_unavailable">Capteur magnétique indisponible — direction non vérifiable</string>
+    <string name="hint_calibration_needed">Calibration requise — déplacez le téléphone en forme de huit</string>
+    <string name="hint_interference">Interférence magnétique possible — éloignez-vous du métal</string>
+    <string name="hint_approximate">Direction approximative — tenez le téléphone stable</string>
+    <string name="city_approx_warning">Position approximative — actualisez le GPS dès que possible</string>
 </resources>

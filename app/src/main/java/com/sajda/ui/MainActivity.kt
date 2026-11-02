@@ -22,6 +22,7 @@ import com.sajda.R
 import com.sajda.compass.AndroidDeclination
 import com.sajda.compass.CompassEngine
 import com.sajda.compass.Confidence
+import com.sajda.compass.CompassHint
 import com.sajda.data.LocationStore
 import com.sajda.data.OfflineCities
 import com.sajda.geo.GeoPoint
@@ -76,7 +77,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                     TrueHeadingDeg(reading.trueHeadingDeg),
                     MagneticHeadingDeg(reading.magneticHeadingDeg),
                     reading.confidence,
-                    reading.interferenceHint
+                    reading.hint
                 )
                 renderSession()
             }
@@ -336,8 +337,9 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         }
 
         val hint = s.interferenceHint
-        hintText.text = hint ?: ""
-        hintText.visibility = if (hint != null) View.VISIBLE else View.GONE
+        val hintStr = CompassHintMessages.resolve(this, hint)
+        hintText.text = hintStr ?: ""
+        hintText.visibility = if (hintStr != null) View.VISIBLE else View.GONE
         updateLocationPillFromSession()
         announceGuidance()
         announceLiveTurn(s)
@@ -512,7 +514,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                 compass.setLocation(city.lat, city.lon)
                 if (isResumed) compass.start()
                 renderSession()
-                showPill(PillMode.CACHED, R.string.city_fallback_pill, action = true)
+                showPill(PillMode.CACHED, R.string.city_approx_warning, action = true)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -551,6 +553,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         }
         dialog.show()
     }
+
+
 
 
     private fun showInfo() {

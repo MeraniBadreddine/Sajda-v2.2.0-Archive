@@ -17,9 +17,5 @@ jobs:
       - name: Unit tests and APKs
         run: |
           set -euo pipefail
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
-            ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --stacktrace
-          else
-            gradle :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --stacktrace
-          fi
+          chmod +x ./gradlew
+          ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --stacktrace

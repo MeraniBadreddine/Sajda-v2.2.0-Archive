@@ -9,7 +9,6 @@ enum class Confidence {
     LOW,
     CALIBRATE;
 
-    /** UI must not present a precise heading as trustworthy. */
     val allowsPreciseHeading: Boolean
         get() = this == HIGH || this == MEDIUM
 
@@ -17,10 +16,20 @@ enum class Confidence {
         get() = this == CALIBRATE
 }
 
+/** Localizable sensor/UX hints — never hard-code English in the engine. */
+enum class CompassHint {
+    NONE,
+    DECLINATION_MISSING,
+    MAGNETIC_UNAVAILABLE,
+    CALIBRATION_NEEDED,
+    INTERFERENCE,
+    APPROXIMATE
+}
+
 data class CompassReading(
     val magneticHeadingDeg: Double,
     val trueHeadingDeg: Double,
     val confidence: Confidence,
     val accuracyStatus: Int,
-    val interferenceHint: String? = null
+    val hint: CompassHint = CompassHint.NONE
 )

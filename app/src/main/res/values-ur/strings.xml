@@ -48,4 +48,10 @@
     <string name="city_sydney">Sydney</string>
     <string name="city_tokyo">Tokyo</string>
     <string name="city_cape_town">Cape Town</string>
+    <string name="hint_declination_missing">حقیقی شمال کی تصحیح دستیاب نہیں — سمت تخمینی ہے</string>
+    <string name="hint_magnetic_unavailable">مقناطیسی سینسر دستیاب نہیں</string>
+    <string name="hint_calibration_needed">کمپاس کیلیبریشن درکار — فون کو آٹھ کی شکل میں گھمائیں</string>
+    <string name="hint_interference">ممکنہ مقناطیسی مداخلت — دھات سے دور رہیں</string>
+    <string name="hint_approximate">سمت تخمینی ہے — فون مستحکم رکھیں</string>
+    <string name="city_approx_warning">تخمینی مقام — بعد میں GPS اپ ڈیٹ کریں</string>
 </resources>

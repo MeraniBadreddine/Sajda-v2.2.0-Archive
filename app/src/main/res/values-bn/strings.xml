@@ -48,4 +48,10 @@
     <string name="city_sydney">Sydney</string>
     <string name="city_tokyo">Tokyo</string>
     <string name="city_cape_town">Cape Town</string>
+    <string name="hint_declination_missing">প্রকৃত উত্তর সংশোধন নেই — দিক আনুমানিক</string>
+    <string name="hint_magnetic_unavailable">চৌম্বক সেন্সর নেই</string>
+    <string name="hint_calibration_needed">কম্পাস ক্যালিব্রেশন প্রয়োজন — ফোন আট আকৃতিতে নাড়ান</string>
+    <string name="hint_interference">সম্ভাব্য চৌম্বক হস্তক্ষেপ — ধাতু থেকে দূরে যান</string>
+    <string name="hint_approximate">দিক আনুমানিক — ফোন স্থির রাখুন</string>
+    <string name="city_approx_warning">আনুমানিক অবস্থান — পরে GPS আপডেট করুন</string>
 </resources>

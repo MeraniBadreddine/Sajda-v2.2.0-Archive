@@ -48,4 +48,10 @@
     <string name="city_sydney">Sydney</string>
     <string name="city_tokyo">Tokyo</string>
     <string name="city_cape_town">Cape Town</string>
+    <string name="hint_declination_missing">Koreksi utara sejati tidak tersedia — arah perkiraan</string>
+    <string name="hint_magnetic_unavailable">Sensor magnet tidak tersedia</string>
+    <string name="hint_calibration_needed">Kalibrasi kompas diperlukan — gerakkan ponsel berbentuk delapan</string>
+    <string name="hint_interference">Kemungkinan gangguan magnet — jauhi logam</string>
+    <string name="hint_approximate">Arah perkiraan — tahan ponsel stabil</string>
+    <string name="city_approx_warning">Lokasi perkiraan — perbarui GPS bila bisa</string>
 </resources>

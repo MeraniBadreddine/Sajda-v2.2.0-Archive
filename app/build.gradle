@@ -14,14 +14,15 @@ android {
         applicationId 'com.sajda'
         minSdk 26
         targetSdk 35
-        versionCode 26
-        versionName '2.3.1'
+        versionCode 27
+        versionName '2.3.2'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

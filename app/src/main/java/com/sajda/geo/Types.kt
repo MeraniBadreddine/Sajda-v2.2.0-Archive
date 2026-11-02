@@ -35,7 +35,7 @@ data class QiblaSession(
     val trueHeading: TrueHeadingDeg?,
     val magneticHeading: MagneticHeadingDeg?,
     val confidence: com.sajda.compass.Confidence,
-    val interferenceHint: String?,
+    val interferenceHint: com.sajda.compass.CompassHint?,
     val locationProvisional: Boolean
 ) {
     fun turnToQibla(): TurnDeg? {

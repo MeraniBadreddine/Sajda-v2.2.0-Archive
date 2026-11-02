@@ -1,5 +1,7 @@
 package com.sajda.ui
 
+import android.util.Log
+
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
@@ -19,7 +21,8 @@ class AlignHaptic(context: Context) {
             @Suppress("DEPRECATION")
             context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+            Log.w("SajdaHaptic", "vibrate failed", e)
         null
     }
 
@@ -49,7 +52,8 @@ class AlignHaptic(context: Context) {
                 @Suppress("DEPRECATION")
                 v.vibrate(18)
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.w("SajdaHaptic", "vibrate failed", e)
         }
     }
 }

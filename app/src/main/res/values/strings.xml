@@ -29,8 +29,6 @@
     <string name="direction_left">left</string>
     <string name="aligned">Aligned with Qibla</string>
     <string name="turn_degrees">Turn %1$d° %2$s</string>
-    <string name="left">left</string>
-    <string name="right">right</string>
     <string name="about_title">About Sajda</string>
     <string name="about_body">Sajda shows the direction to the Kaaba from your location, using true north. The angle is calculated; confidence reflects sensor quality only. Location stays on this device.</string>
     <string name="sensor_unavailable">Compass sensors are unavailable on this device.</string>
@@ -82,4 +80,10 @@
     <string name="permission_pre_body">Sajda uses your location only on this device to calculate the direction of the Kaaba. Nothing is uploaded.</string>
     <string name="permission_pre_continue">Continue</string>
     <string name="permission_pre_not_now">Not now</string>
+    <string name="hint_declination_missing">True-north correction unavailable — direction is approximate</string>
+    <string name="hint_magnetic_unavailable">Magnetic sensor unavailable — direction cannot be verified</string>
+    <string name="hint_calibration_needed">Compass calibration needed — move the phone in a figure-eight</string>
+    <string name="hint_interference">Possible magnetic interference — move away from metal or magnets</string>
+    <string name="hint_approximate">Direction is approximate — hold the phone steady</string>
+    <string name="city_approx_warning">Approximate location — update GPS when you can</string>
 </resources>

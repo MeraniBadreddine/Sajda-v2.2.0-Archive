@@ -1,29 +1,22 @@
-<div align="center">
-
 # Sajda
 ### Direction, with intention.
 
-**Version 2.3.1** · **versionCode 26** · API 26–35
+**Version 2.3.2** · Apache-2.0 · API 26–35
 
-</div>
+## 2.3.2
 
-## Highlights (2.3.1)
-
-- Live TalkBack announcements on turn / alignment (throttled)
-- Offline city fallback **only after GPS timeout** (or city pill)
-- Locales: English, Arabic, French, Urdu, Turkish, Bengali, Indonesian
-- Espresso smoke tests for main chrome
-- Calibration stays as **bottom red banner** (no modal)
-- 2.2.x reliability: multi-provider location, RequestGate, clear heading on pause
-
-## Build
+- Localizable `CompassHint` (no English-only sensor strings)
+- LICENSE (Apache-2.0)
+- Release minify + R8
+- Portrait without swallowing configChanges
+- Stale magnetic accuracy → CALIBRATE after 3s
+- Log.w on critical catches
+- CI requires `./gradlew` only
+- Removed dead `SolarAlignment`
+- Last-known location marked provisional
+- City fallback warning string
+- Compass labels follow font scale
 
 ```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug
-# device/emulator UI smoke:
-./gradlew :app:connectedDebugAndroidTest
+./gradlew :app:testDebugUnitTest :app:assembleRelease
 ```
-
-Privacy: on-device location only · no ads · no trackers.
-
-Sajda · independent open-source project.

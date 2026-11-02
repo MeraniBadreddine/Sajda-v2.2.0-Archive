@@ -34,7 +34,16 @@ class CompassView @JvmOverloads constructor(
     }
 
     private val density = context.resources.displayMetrics.density
-    private val scaledDensity = context.resources.displayMetrics.scaledDensity
+    private var scaledDensity = context.resources.displayMetrics.scaledDensity
+
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        scaledDensity = resources.displayMetrics.scaledDensity
+        degreePaint.textSize = sp(10f)
+        cardinalPaint.textSize = sp(14f)
+        northPaint.textSize = sp(16f)
+        invalidate()
+    }
 
     private var targetHeading = 0f
     private var displayHeading = 0f

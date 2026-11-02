@@ -48,4 +48,10 @@
     <string name="city_sydney">Sydney</string>
     <string name="city_tokyo">Tokyo</string>
     <string name="city_cape_town">Cape Town</string>
+    <string name="hint_declination_missing">Gerçek kuzey düzeltmesi yok — yön yaklaşık</string>
+    <string name="hint_magnetic_unavailable">Manyetik sensör yok — yön doğrulanamıyor</string>
+    <string name="hint_calibration_needed">Pusula kalibrasyonu gerekli — telefonu sekiz şeklinde hareket ettirin</string>
+    <string name="hint_interference">Olası manyetik girişim — metalden uzaklaşın</string>
+    <string name="hint_approximate">Yön yaklaşık — telefonu sabit tutun</string>
+    <string name="city_approx_warning">Yaklaşık konum — mümkünse GPS güncelleyin</string>
 </resources>

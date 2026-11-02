@@ -81,4 +81,10 @@
     <string name="permission_pre_body">يستخدم سجدة موقعك على هذا الجهاز فقط لحساب اتجاه الكعبة. لا يُرفع أي شيء.</string>
     <string name="permission_pre_continue">متابعة</string>
     <string name="permission_pre_not_now">ليس الآن</string>
+    <string name="hint_declination_missing">تصحيح الشمال الحقيقي غير متاح — الاتجاه تقريبي</string>
+    <string name="hint_magnetic_unavailable">مستشعر المغناطيس غير متاح — لا يمكن التحقق من الاتجاه</string>
+    <string name="hint_calibration_needed">معايرة البوصلة مطلوبة — حرّك الهاتف على شكل ثمانية</string>
+    <string name="hint_interference">تداخل مغناطيسي محتمل — ابتعد عن المعدن والمغناطيس</string>
+    <string name="hint_approximate">الاتجاه تقريبي — أمسك الهاتف بثبات</string>
+    <string name="city_approx_warning">موقع تقريبي — حدّث الموقع لاحقاً</string>
 </resources>

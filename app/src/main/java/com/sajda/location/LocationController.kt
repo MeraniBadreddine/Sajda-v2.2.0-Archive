@@ -1,5 +1,7 @@
 package com.sajda.location
 
+import android.util.Log
+
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -57,7 +59,8 @@ class LocationController(
         return try {
             lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
                 lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
             false
         }
     }
@@ -67,13 +70,17 @@ class LocationController(
         locating.set(false)
         timeoutRunnable?.let { mainHandler.removeCallbacks(it) }
         timeoutRunnable = null
-        try { cancelSignal.cancel() } catch (_: Exception) {}
+        try { cancelSignal.cancel() } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
+            }
         removeUpdatesQuietly()
     }
 
     private fun removeUpdatesQuietly() {
         activeListener?.let {
-            try { locationManager?.removeUpdates(it) } catch (_: Exception) {}
+            try { locationManager?.removeUpdates(it) } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
+            }
         }
         activeListener = null
     }
@@ -103,7 +110,7 @@ class LocationController(
 
         bestLastKnown(lm)?.let { last ->
             if (LocationQuality.isUsable(last.latitude, last.longitude, last.time, System.currentTimeMillis(), currentMaxAgeMs)) {
-                deliverFix(requestId, last, provisional = false)
+                deliverFix(requestId, last, provisional = true) // last-known may be up to CURRENT_FIX_MAX_AGE_MS old
                 return
             }
         }
@@ -125,7 +132,8 @@ class LocationController(
                         deliverFix(requestId, loc, provisional = false)
                     }
                 }
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
                 // continue with updates
             }
         }
@@ -200,7 +208,8 @@ class LocationController(
                 if (!lm.isProviderEnabled(provider)) continue
                 lm.requestLocationUpdates(provider, 0L, 0f, locListener, Looper.getMainLooper())
                 registered++
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
                 // This provider failed; others may still work
             }
         }
@@ -226,12 +235,15 @@ class LocationController(
         for (p in providers) {
             try {
                 lm.getLastKnownLocation(p)?.let { candidates.add(it) }
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.w(TAG, "provider path", e)
+            }
         }
         return candidates.maxByOrNull { it.time }
     }
 
     companion object {
+        private const val TAG = "SajdaLocation"
         const val LOCATION_TIMEOUT_MS = 25_000L
         const val CURRENT_FIX_MAX_AGE_MS = 120_000L
         const val LOCATION_REFRESH_INTERVAL_MS = 15L * 60L * 1000L

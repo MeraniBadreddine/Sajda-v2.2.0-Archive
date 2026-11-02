@@ -14,12 +14,12 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: android-actions/setup-android@v3
-      - name: Unit tests and debug APK
+      - name: Unit tests and APKs
         run: |
-          set -e
+          set -euo pipefail
           if [ -f ./gradlew ]; then
             chmod +x ./gradlew
-            ./gradlew :app:testDebugUnitTest :app:assembleDebug --stacktrace
+            ./gradlew :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --stacktrace
           else
-            gradle :app:testDebugUnitTest :app:assembleDebug --stacktrace
+            gradle :app:testDebugUnitTest :app:assembleDebug :app:assembleRelease --stacktrace
           fi

@@ -1,22 +1,23 @@
-# Sajda architecture (v2.2)
+# Sajda architecture (v2.3.0)
 
-## Location search
+## Components
 
-1. Usable last-known (any provider)
-2. Optional `getCurrentLocation(FUSED)` — null does not end search
-3. `requestLocationUpdates` per provider in isolation (GPS, NETWORK, FUSED)
-4. If **zero** providers register → remove listeners → `onLocationUnavailable`
-5. Timeout 25s → `onLocationTimeout`
+| Type | Role |
+|------|------|
+| `MainActivity` | Permissions, dialogs, pill, renderSession, a11y announcements |
+| `LocationController` | Multi-provider search; per-provider try; total failure cleans listeners |
+| `LocationQuality` | Coordinate + age (unit-tested) |
+| `RequestGate` | generation + locating (unit-tested) |
+| `SessionRepository` | Session + `LocationCache`; `clearHeadingTrust` |
+| `LocationStore` | `LocationCache` implementation (`override` save/load/clear) |
+| `HeadingPolicy` | Alignment / turn / confidence gates |
+| `CompassView` | Dial + `clearDeviceHeading` |
 
-Acceptance: `RequestGate.isActive(id, generation, locating)` before any fix delivery.
+## Lifecycle
 
-## Sensor lifecycle
+1. `onPause`: `stop(invalidate=true)`, `compass.stop()`, `clearHeadingTrust()`, `clearDeviceHeading()`, haptic reset
+2. `onResume`: `compass.start()`, `renderSession()`, `ensureLocation()`
 
-| Event | Action |
-|-------|--------|
-| `onPause` | `stop(invalidate=true)`, `compass.stop()`, `clearHeadingTrust()`, `clearDeviceHeading()`, haptic reset |
-| `onResume` | `compass.start()`, `renderSession()`, `ensureLocation()` |
+## Accessibility
 
-## Tests
-
-- GeoMath, HeadingPolicy, LocationQuality, RequestGate, SessionRepository, HeadingFilter
+Text views expose content descriptions; compass view is focusable for TalkBack.

@@ -1,4 +1,4 @@
-﻿package com.sajda.data
+package com.sajda.data
 
 import android.content.Context
 

@@ -23,6 +23,7 @@ import com.sajda.compass.AndroidDeclination
 import com.sajda.compass.CompassEngine
 import com.sajda.compass.Confidence
 import com.sajda.data.LocationStore
+import com.sajda.data.OfflineCities
 import com.sajda.geo.GeoPoint
 import com.sajda.geo.MagneticHeadingDeg
 import com.sajda.geo.QiblaSession
@@ -56,6 +57,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private var lastUiHeadingAt = 0L
     private var lastUiHeading = Float.NaN
     private var permissionDeniedPermanently = false
+    private var usingCityFallback = false
+    private var lastA11yKey: String? = null
 
     private val compass: CompassEngine by lazy {
         CompassEngine(this, AndroidDeclination()) { reading ->
@@ -164,6 +167,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     // ── LocationController.Listener ───────────────────────────────
 
     override fun onLocationFixed(location: Location, provisional: Boolean) {
+        usingCityFallback = false
         sessions.applyPoint(
             GeoPoint(location.latitude, location.longitude),
             provisional = provisional,
@@ -185,6 +189,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         if (sessions.session == null) {
             showPill(PillMode.CACHED, R.string.location_timeout, action = true)
             Toast.makeText(this, R.string.location_timeout, Toast.LENGTH_LONG).show()
+            showCityPicker()
         } else {
             renderSession()
             updateLocationPillFromSession()
@@ -199,14 +204,11 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         }
     }
 
+    private var permissionPreShown = false
+
     private fun ensureLocation() {
         if (!locations.hasPermission()) {
-            locationPermission.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+            showPermissionPreSheet()
             return
         }
         if (!locations.isSystemLocationEnabled()) {
@@ -253,7 +255,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         val s = sessions.session ?: return
 
         degreeText.text = String.format(Locale.US, "%.1f°", s.qibla.value)
-        degreeText.contentDescription = getString(R.string.compass_accessibility, degreeText.text)
+        degreeText.contentDescription = getString(R.string.degree_accessibility, degreeText.text)
+        degreeText.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         compassView.qiblaBearing = s.qibla.value.toFloat()
         compassView.contentDescription = degreeText.contentDescription
 
@@ -336,6 +339,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         hintText.text = hint ?: ""
         hintText.visibility = if (hint != null) View.VISIBLE else View.GONE
         updateLocationPillFromSession()
+        announceGuidance()
+        announceLiveTurn(s)
     }
 
     // ── Location pill (same smart states as 1.4+) ─────────────────
@@ -369,7 +374,10 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                 else ensureLocation()
             }
             PillMode.NEED_SYSTEM -> promptEnableSystemLocation()
-            PillMode.CACHED -> if (!locations.isLocating) locations.startSearch()
+            PillMode.CACHED -> {
+                if (usingCityFallback || sessions.session == null) showCityPicker()
+                else if (!locations.isLocating) locations.startSearch()
+            }
             else -> Unit
         }
     }
@@ -434,6 +442,116 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
             }
         }
     }
+
+
+
+
+    private fun announceGuidance() {
+        deltaText.contentDescription = getString(R.string.delta_accessibility, deltaText.text)
+        confidenceText.contentDescription = getString(
+            R.string.confidence_accessibility,
+            confidenceText.text.ifEmpty { getString(R.string.conf_high) }
+        )
+        locationPill.contentDescription = getString(
+            R.string.location_pill_accessibility,
+            locationPill.text
+        )
+    }
+
+    /** Speak only on meaningful changes — avoids TalkBack spam. */
+    private fun announceLiveTurn(s: com.sajda.geo.QiblaSession) {
+        val heading = s.trueHeading
+        if (heading == null || !s.confidence.allowsPreciseHeading) {
+            val key = "approx"
+            if (lastA11yKey != key) {
+                lastA11yKey = key
+                compassView.announceForAccessibility(getString(R.string.a11y_approx))
+            }
+            return
+        }
+        val turn = s.turnToQibla()?.value ?: 0.0
+        val absT = kotlin.math.abs(turn)
+        val key = when {
+            absT < 2.0 -> "aligned"
+            turn > 0 -> "R${absT.toInt().coerceAtLeast(1)}"
+            else -> "L${absT.toInt().coerceAtLeast(1)}"
+        }
+        // Coalesce small changes: only re-announce when bucket changes by >= 5° or align state flips
+        val prev = lastA11yKey
+        val should = when {
+            prev == null -> true
+            key == "aligned" && prev != "aligned" -> true
+            prev == "aligned" && key != "aligned" -> true
+            key.startsWith("R") && prev.startsWith("R") ->
+                kotlin.math.abs(key.drop(1).toInt() - prev.drop(1).toInt()) >= 5
+            key.startsWith("L") && prev.startsWith("L") ->
+                kotlin.math.abs(key.drop(1).toInt() - prev.drop(1).toInt()) >= 5
+            else -> key != prev
+        }
+        if (!should) return
+        lastA11yKey = key
+        val msg = when {
+            key == "aligned" -> getString(R.string.a11y_aligned)
+            key.startsWith("R") -> getString(R.string.a11y_turn_right, key.drop(1).toInt())
+            else -> getString(R.string.a11y_turn_left, key.drop(1).toInt())
+        }
+        compassView.announceForAccessibility(msg)
+    }
+
+    private fun showCityPicker() {
+        val labels = OfflineCities.all.map { city ->
+            val resId = resources.getIdentifier("city_${city.nameResKey}", "string", packageName)
+            if (resId != 0) getString(resId) else city.nameResKey
+        }.toTypedArray()
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.choose_city)
+            .setItems(labels) { _, which ->
+                val city = OfflineCities.all[which]
+                usingCityFallback = true
+                sessions.applyPoint(city.point(), provisional = true, fixTimeMillis = System.currentTimeMillis())
+                compass.setLocation(city.lat, city.lon)
+                if (isResumed) compass.start()
+                renderSession()
+                showPill(PillMode.CACHED, R.string.city_fallback_pill, action = true)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+
+    private fun showPermissionPreSheet() {
+        if (permissionPreShown) {
+            locationPermission.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+            return
+        }
+        permissionPreShown = true
+        val view = layoutInflater.inflate(R.layout.dialog_permission_pre, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setCancelable(true)
+            .create()
+        LiquidGlass.applyDialogBackdrop(dialog)
+        view.findViewById<TextView>(R.id.permContinue).setOnClickListener {
+            dialog.dismiss()
+            locationPermission.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+        }
+        view.findViewById<TextView>(R.id.permNotNow).setOnClickListener {
+            dialog.dismiss()
+            showPill(PillMode.NEED_PERMISSION, R.string.location_permission_pill, action = true)
+        }
+        dialog.show()
+    }
+
 
     private fun showInfo() {
         val view = layoutInflater.inflate(R.layout.dialog_about, null)

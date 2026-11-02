@@ -28,6 +28,11 @@ class CompassView @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : View(context, attrs) {
 
+    init {
+        importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_YES
+        isFocusable = true
+    }
+
     private val density = context.resources.displayMetrics.density
     private val scaledDensity = context.resources.displayMetrics.scaledDensity
 

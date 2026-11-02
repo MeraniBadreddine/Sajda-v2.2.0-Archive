@@ -60,6 +60,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private var permissionDeniedPermanently = false
     private var usingCityFallback = false
     private var lastA11yKey: String? = null
+    private var calibrateSince = 0L
 
     private val compass: CompassEngine by lazy {
         CompassEngine(this, AndroidDeclination()) { reading ->
@@ -288,10 +289,17 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                 s.confidence.needsCalibration -> getString(R.string.calibrate_guidance)
                 else -> getString(R.string.heading_approximate)
             }
-            calibrateBanner.visibility =
-                if (HeadingPolicy.shouldShowCalibrateBanner(s.confidence)) View.VISIBLE else View.GONE
-            if (s.confidence.needsCalibration) {
-                calibrateBanner.text = getString(R.string.calibrate_banner)
+            // Debounce: brief UNRELIABLE blips must not flash figure-eight constantly
+            val needCal = HeadingPolicy.shouldShowCalibrateBanner(s.confidence)
+            val now = System.currentTimeMillis()
+            if (needCal) {
+                if (calibrateSince == 0L) calibrateSince = now
+                val sustained = now - calibrateSince >= 1_500L
+                calibrateBanner.visibility = if (sustained) View.VISIBLE else View.GONE
+                if (sustained) calibrateBanner.text = getString(R.string.calibrate_banner)
+            } else {
+                calibrateSince = 0L
+                calibrateBanner.visibility = View.GONE
             }
         } else {
             calibrateBanner.visibility = View.GONE
@@ -339,7 +347,19 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         val hint = s.interferenceHint
         val hintStr = CompassHintMessages.resolve(this, hint)
         hintText.text = hintStr ?: ""
-        hintText.visibility = if (hintStr != null) View.VISIBLE else View.GONE
+        if (hintStr != null) {
+            hintText.visibility = View.VISIBLE
+            val color = when (hint) {
+                CompassHint.CALIBRATION_NEEDED, CompassHint.INTERFERENCE ->
+                    ContextCompat.getColor(this, R.color.conf_low)
+                CompassHint.APPROXIMATE, CompassHint.DECLINATION_MISSING ->
+                    ContextCompat.getColor(this, R.color.conf_medium)
+                else -> ContextCompat.getColor(this, R.color.label_secondary)
+            }
+            hintText.setTextColor(color)
+        } else {
+            hintText.visibility = View.GONE
+        }
         updateLocationPillFromSession()
         announceGuidance()
         announceLiveTurn(s)

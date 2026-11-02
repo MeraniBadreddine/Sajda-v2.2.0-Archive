@@ -38,7 +38,7 @@ class CompassEngine(
     private val orientation = FloatArray(3)
     private var hasGravity = false
     private var hasMagneticField = false
-    private var magneticAccuracy = SensorManager.SENSOR_STATUS_UNRELIABLE
+    private var magneticAccuracy = -1 // unknown until OEM reports
     private var rotationVectorAccuracy = -1 // unknown until first accuracy event
     private var magneticAccuracyAt = 0L
     private var rotationVectorAccuracyAt = 0L
@@ -114,8 +114,10 @@ class CompassEngine(
         filter.reset()
         hasGravity = false
         hasMagneticField = false
-        magneticAccuracy = SensorManager.SENSOR_STATUS_UNRELIABLE
+        magneticAccuracy = -1
         rotationVectorAccuracy = -1
+        magneticAccuracyAt = 0L
+        rotationVectorAccuracyAt = 0L
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -137,7 +139,10 @@ class CompassEngine(
             Sensor.TYPE_ROTATION_VECTOR -> {
                 try {
                     if (!isFiniteVector(event.values)) return
-                    if (event.accuracy >= 0) rotationVectorAccuracy = event.accuracy
+                    if (event.accuracy >= 0) {
+                        rotationVectorAccuracy = event.accuracy
+                        rotationVectorAccuracyAt = System.currentTimeMillis()
+                    }
                     SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
                     publishFromRotation(rotationMatrix)
                 } catch (e: RuntimeException) {
@@ -154,8 +159,9 @@ class CompassEngine(
                 }
             }
             Sensor.TYPE_MAGNETIC_FIELD -> {
-                if (event.accuracy in SensorManager.SENSOR_STATUS_UNRELIABLE..SensorManager.SENSOR_STATUS_ACCURACY_HIGH) {
+                if (event.accuracy >= SensorManager.SENSOR_STATUS_UNRELIABLE) {
                     magneticAccuracy = event.accuracy
+                    magneticAccuracyAt = System.currentTimeMillis()
                 }
                 if (isFiniteVector(event.values, firstThreeOnly = true)) {
                     if (!hasMagneticField) event.values.copyInto(magneticField, endIndex = 3)
@@ -193,9 +199,10 @@ class CompassEngine(
             !declinationAvailable -> CompassHint.DECLINATION_MISSING
             !hasMagneticField && rotation == null ->
                 CompassHint.MAGNETIC_UNAVAILABLE
-            hasMagneticField && magneticAccuracy <= SensorManager.SENSOR_STATUS_UNRELIABLE ->
+            hasMagneticField && magneticAccuracy >= 0 &&
+                magneticAccuracy <= SensorManager.SENSOR_STATUS_UNRELIABLE ->
                 CompassHint.CALIBRATION_NEEDED
-            hasMagneticField && fieldUt.isFinite() && (fieldUt < 20.0 || fieldUt > 70.0) ->
+            hasMagneticField && fieldUt.isFinite() && (fieldUt < 15.0 || fieldUt > 90.0) ->
                 CompassHint.INTERFERENCE
             confidence == Confidence.LOW -> CompassHint.APPROXIMATE
             else -> CompassHint.NONE
@@ -217,19 +224,50 @@ class CompassEngine(
      */
     private fun classify(fieldUt: Double): Confidence {
         val now = System.currentTimeMillis()
-        val accuracy = if (hasMagneticField) magneticAccuracy else rotationVectorAccuracy
-        val accuracyAt = if (hasMagneticField) magneticAccuracyAt else rotationVectorAccuracyAt
-        if (accuracyAt > 0L && now - accuracyAt > ACCURACY_STALE_MS) return Confidence.CALIBRATE
-        if (accuracy < 0) return Confidence.CALIBRATE // unknown — never assume accuracy
+        // Rotation-vector path: many OEMs never fire accuracy callbacks — unknown ≠ broken.
+        if (rotation != null) {
+            val acc = rotationVectorAccuracy
+            if (acc <= SensorManager.SENSOR_STATUS_UNRELIABLE && acc >= 0) {
+                return Confidence.CALIBRATE
+            }
+            // Stale only after a long gap once we had a real accuracy sample
+            if (rotationVectorAccuracyAt > 0L &&
+                now - rotationVectorAccuracyAt > ACCURACY_STALE_MS &&
+                acc >= SensorManager.SENSOR_STATUS_ACCURACY_LOW
+            ) {
+                return Confidence.LOW
+            }
+            val base = when {
+                acc < 0 -> Confidence.MEDIUM // OEM silent on accuracy
+                acc >= SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> Confidence.HIGH
+                acc >= SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM -> Confidence.MEDIUM
+                else -> Confidence.LOW
+            }
+            // Extreme field is a soft warning only (hint INTERFERENCE), not permanent CALIBRATE
+            if (hasMagneticField && fieldUt.isFinite() && (fieldUt < 15.0 || fieldUt > 90.0)) {
+                return minConfidence(base, Confidence.LOW)
+            }
+            return base
+        }
+        // Legacy accel+mag path
+        val accuracy = magneticAccuracy
+        if (accuracy < 0) return Confidence.MEDIUM // wait for samples without nagging figure-eight
         if (accuracy <= SensorManager.SENSOR_STATUS_UNRELIABLE) return Confidence.CALIBRATE
-        // Field magnitude is a warning heuristic, only meaningful when the raw field is visible.
-        if (hasMagneticField && fieldUt.isFinite() && (fieldUt < 20.0 || fieldUt > 70.0)) return Confidence.LOW
+        if (magneticAccuracyAt > 0L && now - magneticAccuracyAt > ACCURACY_STALE_MS) {
+            return Confidence.LOW
+        }
+        if (fieldUt.isFinite() && (fieldUt < 15.0 || fieldUt > 90.0)) return Confidence.LOW
         return when (accuracy) {
             SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> Confidence.HIGH
             SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM -> Confidence.MEDIUM
             SensorManager.SENSOR_STATUS_ACCURACY_LOW -> Confidence.LOW
-            else -> Confidence.CALIBRATE
+            else -> Confidence.MEDIUM
         }
+    }
+
+    private fun minConfidence(a: Confidence, b: Confidence): Confidence {
+        val order = listOf(Confidence.HIGH, Confidence.MEDIUM, Confidence.LOW, Confidence.CALIBRATE)
+        return if (order.indexOf(a) >= order.indexOf(b)) a else b
     }
 
     private fun isFiniteVector(values: FloatArray, firstThreeOnly: Boolean = false): Boolean {
@@ -242,7 +280,7 @@ class CompassEngine(
     private companion object {
         private const val TAG = "SajdaCompass"
         const val DECLINATION_REFRESH_MS = 24L * 60L * 60L * 1000L
-        const val ACCURACY_STALE_MS = 3_000L
+        const val ACCURACY_STALE_MS = 45_000L
     }
 
     private fun lowPass(out: FloatArray, input: FloatArray, alpha: Float = 0.18f) {

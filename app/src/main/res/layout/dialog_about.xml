@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_liquid_glass_card"
+    android:paddingStart="22dp"
+    android:paddingEnd="22dp"
+    android:paddingTop="20dp"
+    android:paddingBottom="4dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/about_title"
+        android:textColor="@color/label_primary"
+        android:textSize="17sp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:includeFontPadding="false" />
+
+    <TextView
+        android:id="@+id/aboutBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/about_body"
+        android:textColor="@color/label_secondary"
+        android:textSize="13sp"
+        android:lineSpacingMultiplier="1.3"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:includeFontPadding="false" />
+
+    <TextView
+        android:id="@+id/aboutVersion"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:textColor="#55EBEBF5"
+        android:textSize="12sp"
+        android:fontFamily="sans-serif"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:includeFontPadding="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="14dp"
+        android:background="#28FFFFFF" />
+
+    <TextView
+        android:id="@+id/aboutOk"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:gravity="center"
+        android:text="@string/ok"
+        android:textColor="@color/accent"
+        android:textSize="17sp"
+        android:fontFamily="sans-serif-medium"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true" />
+</LinearLayout>

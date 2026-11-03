@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#FF000000</color>
+    <color name="bg_elevated">#FF1C1C1E</color>
+    <color name="label_primary">#FFFFFFFF</color>
+    <color name="label_secondary">#99EBEBF5</color>
+    <color name="label_tertiary">#66EBEBF5</color>
+    <color name="accent">#FF0A84FF</color>
+    <color name="accent_soft">#290A84FF</color>
+    <color name="conf_high">#FF30D158</color>
+    <color name="conf_medium">#FFFFD60A</color>
+    <color name="conf_low">#FFFF453A</color>
+    <color name="glass_fill">#B31C1C1E</color>
+    <color name="glass_stroke">#40FFFFFF</color>
+    <color name="glass_highlight">#28FFFFFF</color>
+    <color name="ic_launcher_background">#0B0B0F</color>
+</resources>

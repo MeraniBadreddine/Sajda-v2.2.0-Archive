@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Sajda" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@color/bg</item>
+        <item name="android:windowBackground">@color/bg</item>
+        <item name="android:colorBackground">@color/bg</item>
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnPrimary">@color/label_primary</item>
+        <item name="colorSecondary">@color/label_secondary</item>
+        <item name="colorSurface">@color/bg_elevated</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Sajda.Dialog</item>
+    </style>
+
+    <style name="ThemeOverlay.Sajda.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorPrimary">@color/accent</item>
+        <item name="colorOnSurface">@color/label_primary</item>
+    </style>
+
+    <!-- Apple iOS type scale. Flat names only — no parent chain for AAPT. -->
+
+    <!-- iOS Large Title: big, medium weight, tight tracking -->
+
+    <!-- Hero number: thin, very large, tightest tracking (SF Display feel) -->
+
+    <!-- iOS Footnote -->
+
+    <!-- iOS Caption 1 -->
+</resources>

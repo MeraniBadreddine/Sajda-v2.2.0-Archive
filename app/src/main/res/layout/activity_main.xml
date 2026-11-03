@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fitsSystemWindows="true"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp">
+
+    <!-- Top bar: brand + info -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="SAJDA"
+        android:textColor="#E6EBEBF5"
+        android:textSize="13sp"
+        android:fontFamily="sans-serif-medium"
+        android:letterSpacing="0.28"
+        android:includeFontPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tagline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/tagline"
+        android:textColor="#B3EBEBF5"
+        android:textSize="11sp"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/btnInfoWrap"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/about_title"
+        app:layout_constraintTop_toTopOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="@id/tagline"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/btnInfo"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:background="@drawable/bg_liquid_glass_circle"
+            android:gravity="center"
+            android:text="i"
+            android:textColor="#E6EBEBF5"
+            android:textSize="15sp"
+            android:fontFamily="sans-serif-medium"
+            android:includeFontPadding="false" />
+    </FrameLayout>
+
+    <!-- Primary degree cluster -->
+    <TextView
+        android:id="@+id/degreeText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:text="—°"
+        android:textColor="@color/label_primary"
+        android:textSize="40sp"
+        android:fontFamily="sans-serif-light"
+        android:includeFontPadding="false"
+        android:letterSpacing="-0.02"
+        app:layout_constraintTop_toBottomOf="@id/tagline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/deltaText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:textColor="#B3EBEBF5"
+        android:textSize="15sp"
+        android:fontFamily="sans-serif"
+        android:includeFontPadding="false"
+        android:minHeight="22dp"
+        app:layout_constraintTop_toBottomOf="@id/degreeText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Compass occupies remaining vertical space between guidance and status dock -->
+    <com.sajda.ui.CompassView
+        android:id="@+id/compass"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/compass_accessibility"
+        app:layout_constraintTop_toBottomOf="@id/deltaText"
+        app:layout_constraintBottom_toTopOf="@id/statusDock"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintWidth_max="360dp"
+        app:layout_constraintDimensionRatio="1:1" />
+
+    <!-- Fixed status dock: stable footprint for all bottom states -->
+    <LinearLayout
+        android:id="@+id/statusDock"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:minHeight="96dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:id="@+id/calibrateBanner"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_liquid_glass_banner"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:gravity="center"
+            android:textColor="@color/accent"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/confidenceText"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_liquid_glass_pill"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif-medium"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/hintText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="20dp"
+            android:gravity="center"
+            android:textColor="#99EBEBF5"
+            android:textSize="12sp"
+            android:fontFamily="sans-serif"
+            android:visibility="gone"
+            android:layout_marginBottom="8dp"
+            android:includeFontPadding="false" />
+
+        <TextView
+            android:id="@+id/locationPill"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:minWidth="160dp"
+            android:background="@drawable/bg_liquid_glass_pill"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:gravity="center"
+            android:textColor="@color/label_secondary"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:visibility="gone"
+            android:includeFontPadding="false" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

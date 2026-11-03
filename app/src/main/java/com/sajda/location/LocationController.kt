@@ -270,7 +270,7 @@ class LocationController(
     companion object {
         private const val TAG = "SajdaLocation"
         const val LOCATION_TIMEOUT_MS = 25_000L
-        const val CURRENT_FIX_MAX_AGE_MS = 120_000L
-        const val LOCATION_REFRESH_INTERVAL_MS = 15L * 60L * 1000L
+        const val CURRENT_FIX_MAX_AGE_MS = 3_600_000L // 1h — Qibla tolerates coarse location
+        const val LOCATION_REFRESH_INTERVAL_MS = 10L * 60L * 1000L // 10 min — travel without Clear
     }
 }

@@ -71,7 +71,8 @@ class SessionRepositoryTest {
         val s = repo.session!!
         assertNull(s.trueHeading)
         assertNull(s.magneticHeading)
-        assertEquals(Confidence.CALIBRATE, s.confidence)
+        assertNull(s.trueHeading)
+        // confidence is left unchanged on clearHeadingTrust (no false calibrate flash)
         assertNull(s.interferenceHint)
         // location + qibla preserved
         assertNotNull(s.point)

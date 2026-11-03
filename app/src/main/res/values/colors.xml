@@ -3,8 +3,8 @@
     <color name="bg">#FF000000</color>
     <color name="bg_elevated">#FF1C1C1E</color>
     <color name="label_primary">#FFFFFFFF</color>
-    <color name="label_secondary">#99EBEBF5</color>
-    <color name="label_tertiary">#66EBEBF5</color>
+    <color name="label_secondary">#B3EBEBF5</color>
+    <color name="label_tertiary">#99EBEBF5</color>
     <color name="accent">#FF0A84FF</color>
     <color name="accent_soft">#290A84FF</color>
     <color name="conf_high">#FF30D158</color>

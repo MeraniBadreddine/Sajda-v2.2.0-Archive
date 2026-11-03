@@ -78,13 +78,21 @@ class SessionRepository(
         provisionalLocation = false
     }
 
+    fun clearStoredLocation() {
+        store.clear()
+        session = null
+        provisionalLocation = false
+        lastSource = com.sajda.data.LocationSource.GPS
+        lastFreshLocationAt = 0L
+    }
+
     /** After sensors stop, heading must not remain trusted. */
     fun clearHeadingTrust() {
         val s = session ?: return
+        // Clear heading only — do NOT force CALIBRATE (that flashes a false figure-eight on resume).
         session = s.copy(
             trueHeading = null,
             magneticHeading = null,
-            confidence = Confidence.CALIBRATE,
             interferenceHint = null
         )
     }

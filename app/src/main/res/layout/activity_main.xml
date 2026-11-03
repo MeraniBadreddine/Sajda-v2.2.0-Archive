@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="SAJDA"
-        android:textColor="#A8EBEBF5"
+        android:textColor="#E6EBEBF5"
         android:textSize="13sp"
         android:fontFamily="sans-serif-medium"
         android:letterSpacing="0.28"
@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:text="@string/tagline"
-        android:textColor="#66EBEBF5"
+        android:textColor="#B3EBEBF5"
         android:textSize="11sp"
         android:fontFamily="sans-serif"
         android:includeFontPadding="false"
@@ -170,7 +170,7 @@
         <TextView
             android:id="@+id/locationPill"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
+            android:layout_height="48dp"
             android:minWidth="160dp"
             android:background="@drawable/bg_liquid_glass_pill"
             android:paddingStart="18dp"
@@ -181,11 +181,5 @@
             android:fontFamily="sans-serif-medium"
             android:visibility="gone"
             android:includeFontPadding="false" />
-
-        <TextView
-            android:id="@+id/locationText"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:visibility="gone" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

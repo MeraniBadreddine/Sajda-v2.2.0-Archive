@@ -39,12 +39,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="14dp"
-        android:textColor="#55EBEBF5"
+        android:textColor="@color/label_tertiary"
         android:textSize="12sp"
         android:fontFamily="sans-serif"
         android:gravity="center"
         android:textAlignment="center"
         android:includeFontPadding="false" />
+
+    <TextView
+        android:id="@+id/aboutPrivacy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/privacy_blurb"
+        android:textColor="@color/label_tertiary"
+        android:textSize="12sp"
+        android:gravity="center"
+        android:fontFamily="sans-serif" />
 
     <View
         android:layout_width="match_parent"
@@ -55,7 +66,7 @@
     <TextView
         android:id="@+id/aboutOk"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:text="@string/ok"
         android:textColor="@color/accent"

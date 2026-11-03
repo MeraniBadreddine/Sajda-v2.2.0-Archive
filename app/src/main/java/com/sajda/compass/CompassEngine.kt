@@ -3,6 +3,8 @@ package com.sajda.compass
 import android.util.Log
 
 import android.content.Context
+import android.view.Surface
+import android.view.WindowManager
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -184,8 +186,10 @@ class CompassEngine(
         publishFromRotation(rotationMatrix)
     }
 
+    
+
     private fun publishFromRotation(matrix: FloatArray) {
-        // Orientation is locked to portrait in the manifest, so no axis remap is needed.
+        // Portrait-locked UI: fixed matrix (stable Qibla, not a tilt game).
         SensorManager.getOrientation(matrix, orientation)
         val magnetic = GeoMath.normalizeDegrees(Math.toDegrees(orientation[0].toDouble()))
         if (!magnetic.isFinite()) return

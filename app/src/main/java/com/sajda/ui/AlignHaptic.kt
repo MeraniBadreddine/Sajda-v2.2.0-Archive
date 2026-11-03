@@ -1,17 +1,14 @@
 package com.sajda.ui
 
-import android.util.Log
-
 import android.content.Context
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
+import android.util.Log
+import com.sajda.session.HeadingPolicy
 import kotlin.math.abs
 
-/**
- * One soft tick when the user *enters* alignment (±threshold), not while holding.
- */
 class AlignHaptic(context: Context) {
     private val vibrator: Vibrator? = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -22,17 +19,17 @@ class AlignHaptic(context: Context) {
             context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         }
     } catch (e: Exception) {
-            Log.w("SajdaHaptic", "vibrate failed", e)
+        Log.w("SajdaHaptic", "vibrate failed", e)
         null
     }
 
     private var wasAligned = false
 
-    fun onTurn(turnAbsDeg: Double, threshold: Double = 2.0) {
-        val aligned = abs(turnAbsDeg) <= threshold
-        if (aligned && !wasAligned) {
-            tick()
-        }
+    fun onTurn(turnAbsDeg: Double) {
+        val a = abs(turnAbsDeg)
+        val aligned = if (wasAligned) a < HeadingPolicy.ALIGN_EXIT_DEG
+        else a < HeadingPolicy.ALIGN_ENTER_DEG
+        if (aligned && !wasAligned) tick()
         wasAligned = aligned
     }
 

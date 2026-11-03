@@ -47,7 +47,6 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private lateinit var a11y: AccessibilityAnnouncer
     private lateinit var degreeText: TextView
     private lateinit var confidenceText: TextView
-    private lateinit var locationText: TextView
     private lateinit var hintText: TextView
     private lateinit var deltaText: TextView
     private lateinit var calibrateBanner: TextView
@@ -61,6 +60,9 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private var lastUiHeadingAt = 0L
     private var lastUiHeading = Float.NaN
     private var permissionDeniedPermanently = false
+    private var locationPermState = LocationPermState.UNKNOWN
+    private var sensorHasDelivered = false
+    private var guidanceWasAligned = false
     private var usingCityFallback = false
     private var lastA11yKey: String? = null
     private var calibrateSince = 0L
@@ -77,6 +79,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                 ) return@runOnUiThread
                 lastUiHeading = h
                 lastUiHeadingAt = now
+                sensorHasDelivered = true
                 sessions.updateHeading(
                     TrueHeadingDeg(reading.trueHeadingDeg),
                     MagneticHeadingDeg(reading.magneticHeadingDeg),
@@ -95,13 +98,15 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
             granted[Manifest.permission.ACCESS_COARSE_LOCATION] == true
         if (ok) {
             permissionDeniedPermanently = false
+            locationPermState = LocationPermState.GRANTED
             locations.startSearch()
         } else {
             permissionDeniedPermanently =
-                !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) &&
                 !shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_COARSE_LOCATION)
+            locationPermState = if (permissionDeniedPermanently)
+                LocationPermState.DENIED_PERMANENT else LocationPermState.DENIED
             showPill(PillMode.NEED_PERMISSION, R.string.location_permission_pill, action = true)
-            Toast.makeText(this, R.string.permission_rationale, Toast.LENGTH_LONG).show()
+            if (sessions.session == null) showCityPicker()
         }
     }
 
@@ -119,7 +124,6 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         a11y = AccessibilityAnnouncer(compassView)
         degreeText = findViewById(R.id.degreeText)
         confidenceText = findViewById(R.id.confidenceText)
-        locationText = findViewById(R.id.locationText)
         hintText = findViewById(R.id.hintText)
         deltaText = findViewById(R.id.deltaText)
         calibrateBanner = findViewById(R.id.calibrateBanner)
@@ -161,6 +165,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         locations.stop(invalidate = true)
         compass.stop()
         sessions.clearHeadingTrust()
+        sensorHasDelivered = false
+        guidanceWasAligned = false
         compassView.clearDeviceHeading()
         alignHaptic.reset()
         super.onPause()
@@ -204,28 +210,58 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
             }
             LocationFailure.LOCATION_DISABLED ->
                 showPill(PillMode.NEED_SYSTEM, R.string.location_off_pill, action = true)
-            LocationFailure.PROVIDERS_UNAVAILABLE ->
-                showPill(PillMode.CACHED, R.string.location_providers_unavailable, action = true)
-            LocationFailure.TIMEOUT ->
-                showPill(PillMode.CACHED, R.string.location_timeout, action = true)
+            LocationFailure.PROVIDERS_UNAVAILABLE -> {
+                if (sessions.session != null) {
+                    showPill(PillMode.CACHED, R.string.location_cached, action = true)
+                    renderSession()
+                } else {
+                    showPill(PillMode.CACHED, R.string.location_providers_unavailable, action = true)
+                    showCityPicker()
+                }
+            }
+            LocationFailure.TIMEOUT -> {
+                if (sessions.session != null) {
+                    // Keep working Qibla; soft status only
+                    showPill(PillMode.CACHED, R.string.location_cached, action = true)
+                    renderSession()
+                } else {
+                    showPill(PillMode.CACHED, R.string.location_timeout, action = true)
+                    if (locations.hasPermission()) showCityPicker()
+                }
+            }
         }
     }
 
-    private var permissionPreShown = false
-
     private fun ensureLocation() {
-        if (!locations.hasPermission()) {
+        // Already granted
+        if (locations.hasPermission()) {
+            locationPermState = LocationPermState.GRANTED
+            if (!locations.isSystemLocationEnabled()) {
+                if (sessions.session == null) promptEnableSystemLocation()
+                return
+            }
+            val shouldRefresh = sessions.session == null ||
+                sessions.provisionalLocation ||
+                System.currentTimeMillis() - sessions.lastFreshLocationAt >
+                    LocationController.LOCATION_REFRESH_INTERVAL_MS
+            if (shouldRefresh && !locations.isLocating) locations.startSearch()
+            return
+        }
+        // User chose city-only — never spam system permission
+        if (locationPermState == LocationPermState.CITY_ONLY && sessions.session != null) return
+        // Denied — pill only, no automatic system dialog
+        if (locationPermState == LocationPermState.DENIED ||
+            locationPermState == LocationPermState.DENIED_PERMANENT
+        ) {
+            if (sessions.session == null) {
+                showPill(PillMode.NEED_PERMISSION, R.string.location_permission_pill, action = true)
+            }
+            return
+        }
+        // First time / unknown — one pre-sheet only
+        if (locationPermState == LocationPermState.UNKNOWN) {
             showPermissionPreSheet()
-            return
         }
-        if (!locations.isSystemLocationEnabled()) {
-            if (sessions.session == null) promptEnableSystemLocation()
-            return
-        }
-        val shouldRefresh = sessions.session == null ||
-            sessions.provisionalLocation ||
-            System.currentTimeMillis() - sessions.lastFreshLocationAt > LocationController.LOCATION_REFRESH_INTERVAL_MS
-        if (shouldRefresh && !locations.isLocating) locations.startSearch()
     }
 
     private fun promptEnableSystemLocation() {
@@ -261,7 +297,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private fun renderSession() {
         val s = sessions.session ?: return
 
-        degreeText.text = String.format(Locale.US, "%.1f°", s.qibla.value)
+        degreeText.text = String.format(Locale.US, "%.0f°", s.qibla.value)
         degreeText.contentDescription = getString(R.string.degree_accessibility, degreeText.text)
         degreeText.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_YES
         compassView.qiblaBearing = s.qibla.value.toFloat()
@@ -295,7 +331,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
                 else -> getString(R.string.heading_approximate)
             }
             // Debounce: brief UNRELIABLE blips must not flash figure-eight constantly
-            val needCal = HeadingPolicy.shouldShowCalibrateBanner(s.confidence)
+            val needCal = HeadingPolicy.shouldShowCalibrateBanner(s.confidence, sensorHasDelivered)
             val now = System.currentTimeMillis()
             if (needCal) {
                 if (calibrateSince == 0L) calibrateSince = now
@@ -310,15 +346,17 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
             calibrateBanner.visibility = View.GONE
             val turn = s.turnToQibla()?.value ?: 0.0
             val turnAbs = abs(turn)
-            alignHaptic.onTurn(turnAbs, threshold = 2.0)
+            alignHaptic.onTurn(turnAbs)
             compassView.alignment = HeadingPolicy.alignmentFactor(turnAbs)
-            if (HeadingPolicy.isAligned(turnAbs)) {
+            val alignedNow = HeadingPolicy.isAligned(turnAbs, guidanceWasAligned)
+            guidanceWasAligned = alignedNow
+            if (alignedNow) {
                 degreeText.setTextColor(ContextCompat.getColor(this, R.color.accent))
                 deltaText.text = getString(R.string.aligned)
             } else {
                 degreeText.setTextColor(ContextCompat.getColor(this, R.color.label_primary))
                 val deg = turnAbs.toInt().coerceAtLeast(1)
-                deltaText.text = when (HeadingPolicy.turnInstruction(turn)) {
+                deltaText.text = when (HeadingPolicy.turnInstruction(turn, false)) {
                     HeadingPolicy.TurnInstruction.RIGHT -> getString(R.string.turn_degrees, deg, getString(R.string.direction_right))
                     HeadingPolicy.TurnInstruction.LEFT -> getString(R.string.turn_degrees, deg, getString(R.string.direction_left))
                     HeadingPolicy.TurnInstruction.ALIGNED -> getString(R.string.aligned)
@@ -372,6 +410,10 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
 
     // ── Location pill (same smart states as 1.4+) ─────────────────
 
+    private enum class LocationPermState {
+        UNKNOWN, PRE_SHOWN, GRANTED, DENIED, DENIED_PERMANENT, CITY_ONLY
+    }
+
     private enum class PillMode { HIDDEN, LOCATING, CACHED, READY_FADE, NEED_PERMISSION, NEED_SYSTEM }
 
     private var pillMode = PillMode.HIDDEN
@@ -397,8 +439,15 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
     private fun onLocationPillClick() {
         when (pillMode) {
             PillMode.NEED_PERMISSION -> {
-                if (permissionDeniedPermanently) promptAppPermissionSettings()
-                else ensureLocation()
+                when (locationPermState) {
+                    LocationPermState.DENIED_PERMANENT -> promptAppPermissionSettings()
+                    LocationPermState.DENIED, LocationPermState.CITY_ONLY, LocationPermState.PRE_SHOWN ->
+                        showCityPicker()
+                    else -> {
+                        locationPermState = LocationPermState.UNKNOWN
+                        showPermissionPreSheet()
+                    }
+                }
             }
             PillMode.NEED_SYSTEM -> promptEnableSystemLocation()
             PillMode.CACHED -> {
@@ -421,7 +470,6 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         locationPill.alpha = 1f
         locationPill.visibility = View.VISIBLE
         locationPill.setText(textRes)
-        locationText.setText(textRes)
         locationPill.setBackgroundResource(
             if (action) R.drawable.bg_liquid_glass_action else R.drawable.bg_liquid_glass_pill
         )
@@ -497,6 +545,7 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
             .setItems(labels) { _, which ->
                 val city = OfflineCities.all[which]
                 usingCityFallback = true
+                locationPermState = LocationPermState.CITY_ONLY
                 sessions.applyPoint(city.point(), provisional = true, fixTimeMillis = System.currentTimeMillis(), source = LocationSource.MANUAL_CITY)
                 compass.setLocation(city.lat, city.lon)
                 if (isResumed) compass.start()
@@ -509,16 +558,8 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
 
 
     private fun showPermissionPreSheet() {
-        if (permissionPreShown) {
-            locationPermission.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
-            return
-        }
-        permissionPreShown = true
+        if (locationPermState != LocationPermState.UNKNOWN) return
+        locationPermState = LocationPermState.PRE_SHOWN
         val view = layoutInflater.inflate(R.layout.dialog_permission_pre, null)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(view)
@@ -527,19 +568,17 @@ class MainActivity : AppCompatActivity(), LocationController.Listener {
         LiquidGlass.applyDialogBackdrop(dialog)
         view.findViewById<TextView>(R.id.permContinue).setOnClickListener {
             dialog.dismiss()
-            locationPermission.launch(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                )
-            )
+            // COARSE is enough for Qibla; FINE is optional if the user grants it system-wide
+            locationPermission.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
         }
         view.findViewById<TextView>(R.id.permNotNow).setOnClickListener {
             dialog.dismiss()
+            locationPermState = LocationPermState.DENIED
             showPill(PillMode.NEED_PERMISSION, R.string.location_permission_pill, action = true)
         }
         view.findViewById<TextView>(R.id.permChooseCity).setOnClickListener {
             dialog.dismiss()
+            locationPermState = LocationPermState.CITY_ONLY
             showCityPicker()
         }
         dialog.show()

@@ -51,7 +51,7 @@
     <TextView
         android:id="@+id/permChooseCity"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:text="@string/permission_choose_city"
         android:textColor="@color/label_secondary"
@@ -64,7 +64,7 @@
     <TextView
         android:id="@+id/permNotNow"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:text="@string/permission_pre_not_now"
         android:textColor="@color/label_secondary"

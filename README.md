@@ -1,17 +1,8 @@
-# Sajda
-**Version 2.3.5** · **versionCode 31** · Apache-2.0
+# Sajda 2.3.9
 
-## Reliability & Validation
+- Removed **Clear stored location** (caused dead compass; no real user value)
+- Location auto-refresh every **10 minutes** (travel without manual clear)
+- TIMEOUT / PROVIDERS fail soft when a session already works
+- Removed dead `locationText` and unused compass remap
 
-- `lastSource` property fixed (clean build)
-- Provisional last-known continues search for fresh fix
-- `LocationFailure` unified (TIMEOUT included)
-- Real provider to LocationSource (GPS / NETWORK / FUSED / LAST_KNOWN / MANUAL_CITY)
-- Location quality checks horizontal accuracy (unknown OK; extreme rejected)
-- Permission pre-sheet: Continue with a city
-- Regression unit tests for quality, source mapping, session source
-- Source-only archive (no app/build, no local.properties)
-
-```bash
-./gradlew :app:testDebugUnitTest :app:assembleDebug
-```
+versionCode 35

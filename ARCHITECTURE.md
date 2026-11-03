@@ -1,13 +1,10 @@
-# Sajda architecture (v2.3.5)
-
-## Location pipeline
-1. Failures → LocationFailure (permission / disabled / providers / timeout)
-2. Last-known → provisional + stopSearch=false
-3. Fresh provider fix → source from provider name + stop search
-4. Manual city → MANUAL_CITY, survives restart
+# Sajda architecture (v2.3.7)
 
 ## Compass
-HeadingSource from successful registration drives classify().
+`CompassEngine.remapToDisplay()` maps rotation-vector / accel-mag matrices to the current `Display.rotation` before `getOrientation`.
 
-## Tests
-Unit: GeoMath, HeadingPolicy, RequestGate, LocationQuality, LocationSourceMapping, SessionRepository
+## Location
+`LocationFailure`, provisional+continue search, `LocationSource` persisted, COARSE by default.
+
+## Trust UI
+Permission state machine; no false calibrate without sensor frames; integer degrees; align hysteresis 3°/6°.

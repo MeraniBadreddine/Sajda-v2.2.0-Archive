@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="compass_top_margin">4dp</dimen>
-    <dimen name="degree_text_size">32sp</dimen>
-    <dimen name="status_dock_min_height">88dp</dimen>
-    <dimen name="title_top_margin">8dp</dimen>
-</resources>
